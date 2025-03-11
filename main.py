@@ -6,6 +6,9 @@ import seaborn as sns
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+from categorize_vehicle_type import categorize_vehicle_type
+from standardDeviation import standardDeviation
+from correlationCoefficient import correlationCoefficient
 
 # Define column names
 column_names = [
@@ -22,7 +25,7 @@ column_names = [
 # 
 # 
 rawData = pd.read_csv(
-    'cars_dataa.txt',
+    'auto-mpg.data',
     sep=r'\s+',  # Handles irregular whitespace
     header=None,
     names=column_names,
@@ -56,6 +59,9 @@ print(missing_values)
 # Step 1: Handle missing values
 # Fill numerical columns with their mean
 numerical_columns = ['mpg', 'displacement', 'horsepower', 'weight', 'acceleration']
+# Convert non-numeric columns to numeric (if necessary)
+for col in numerical_columns:
+    rawData[col] = pd.to_numeric(rawData[col], errors='coerce')
 rawData[numerical_columns] = rawData[numerical_columns].fillna(rawData[numerical_columns].mean())
 
 # Step 2: Convert data types
@@ -88,22 +94,7 @@ print(f"The average MPG for the vehicles in the dataset is: {averageMPG}")
 
 
 # -------------------------------2. Calculate Common vehicle type -------------------------------------------------------
-# Define a function to categorize vehicle types based on car names
-def categorize_vehicle_type(car_name):
-    if 'wagon' in car_name.lower():
-        return 'wagon'
-    elif 'sedan' in car_name.lower():
-        return 'sedan'
-    elif 'convertible' in car_name.lower():
-        return 'convertible'
-    elif 'coupe' in car_name.lower():
-        return 'coupe'
-    elif 'hatchback' in car_name.lower():
-        return 'hatchback'
-    elif 'pickup' in car_name.lower():
-        return 'pickup'
-    else:
-        return 'other'
+
 
 # # Apply the function to compute the most common vehicle type
 commonVehicleType = preprocessedData['car_name'].apply(categorize_vehicle_type).value_counts().idxmax()
@@ -122,33 +113,7 @@ print(f"The most frequently occurring cylinder count is: {commonCylinderCount}")
 
 
 # -------------------------------4. Function for Standard deviation -------------------------------------------------------
-def standardDeviation(arr):
-    """
-    Computes the standard deviation of an array from scratch.
 
-    Parameters:
-        arr (list or array-like): The input array of numeric values.
-
-    Returns:
-        float: The standard deviation of the array.
-    """
-    # Ensure the array is not empty
-    if len(arr) == 0:
-        raise ValueError("The input array must not be empty.")
-
-    # Step 1: Compute the mean
-    mean = sum(arr) / len(arr)
-    
-    # Step 2: Compute the squared differences from the mean
-    squared_diffs = [(x - mean) ** 2 for x in arr]
-
-    # Step 3: Compute the mean of the squared differences (variance)
-    variance = sum(squared_diffs) / len(arr)
-
-    # Step 4: Compute the square root of the variance (standard deviation)
-    std_dev = variance ** 0.5
-
-    return std_dev
 
 # Example array
 data = [10, 12, 23, 23, 16, 23, 21, 16]
@@ -159,41 +124,6 @@ print(f"Standard Deviation: {result}")
 
 
 # -------------------------------5. Function for correlationCoefficient -------------------------------------------------------
-def correlationCoefficient(x, y):
-    """
-    Computes the Pearson correlation coefficient between two vectors.
-
-    Parameters:
-        x (list or array-like): The first vector of numeric values.
-        y (list or array-like): The second vector of numeric values.
-
-    Returns:
-        float: The correlation coefficient between the two vectors.
-    """
-    # Ensure the input vectors are not empty and have the same length
-    if len(x) == 0 or len(y) == 0:
-        raise ValueError("Input vectors must not be empty.")
-    if len(x) != len(y):
-        raise ValueError("Input vectors must have the same length.")
-
-    # Step 1: Compute the means of both vectors
-    mean_x = sum(x) / len(x)
-    mean_y = sum(y) / len(y)
-
-    # Step 2: Compute the numerator (covariance)
-    numerator = sum((xi - mean_x) * (yi - mean_y) for xi, yi in zip(x, y))
-
-    # Step 3: Compute the denominator (product of standard deviations)
-    std_x = (sum((xi - mean_x) ** 2 for xi in x) / len(x)) ** 0.5
-    std_y = (sum((yi - mean_y) ** 2 for yi in y) / len(y)) ** 0.5
-    denominator = std_x * std_y
-
-    # Step 4: Compute the correlation coefficient
-    if denominator == 0:
-        raise ValueError("Denominator is zero. Correlation is undefined.")
-    corr_coefficient = numerator / denominator
-
-    return corr_coefficient
 
 # Example vectors
 x = [1, 2, 3, 4, 5]
